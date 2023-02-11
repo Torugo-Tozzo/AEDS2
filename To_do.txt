@@ -2,8 +2,8 @@ Implementar em C:
 
 - Arvore Binaria - Done!
 - Arvore Binaria de busca - Done!
+- Arvore Heap - Done!
 - Arvore de Partilha (inserção)
-- Heap
 - Hash : funções do video.
 
 Estudar:
