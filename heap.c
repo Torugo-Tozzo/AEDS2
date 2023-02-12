@@ -222,9 +222,11 @@ int main()
     inserirHeap(&meuHeap, 12);
     imprimirArranjo(meuHeap);
     /*o Heap ja esta corretamente montado, o comando a seguir nao alterara nada*/
+    imprimirArranjo(meuHeap);
+    printf("\n------\n");
     construirHeapMaximo(&meuHeap);
     imprimirArranjo(meuHeap);
-    percursoPreOrdem(&meuHeap, 1);
+  
     printf("\n");
     heapSort(&meuHeap);
     imprimirArranjo(meuHeap);
