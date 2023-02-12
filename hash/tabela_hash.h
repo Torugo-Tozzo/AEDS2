@@ -24,6 +24,7 @@ extern "C" {
 typedef struct estudante_{
 	int matricula;//chave
 	char nome[30];//valor
+	struct estudante *prox;//lista encadeada
 }estudante;
 
 typedef struct hash_{
@@ -31,6 +32,8 @@ typedef struct hash_{
 	//TABLE_SIZE = tamanho da tabela.
 	estudante ** estudantes;//vetor de estudantes.
 }hash;
+
+
 
 estudante * cria_estudante(char * nome, int matricula);
 hash * cria_hash(int TABLE_SIZE);

@@ -166,3 +166,26 @@ char* busca_hash_end_aberto(hash * ha, int matricula) {
 	}
 	return NULL;
 }
+
+int insereHashEnc(hash* ha, estudante* e)
+{
+ int i = 0;
+ int pos = funcaoHash(ha,e->matricula);
+ estudante *aux = ha->estudantes[pos];
+ while(aux != NULL)
+ {
+  if(aux->matricula == e->matricula)
+  {
+   break;
+  }
+  aux = aux->prox;
+ }
+ if(aux == NULL)
+ {
+  aux = (estudante*)malloc(sizeof(estudante));
+  aux = e;
+  //ha->estudantes[pos] = aux;
+  return 1;
+ }
+}
+

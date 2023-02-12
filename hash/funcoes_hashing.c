@@ -20,6 +20,11 @@ int chave_divisao(int chave, int TABLE_SIZE) {
 	return chave % TABLE_SIZE;
 }
 
+int funcaoHash(hash* ha, int num)
+{
+  return(num % ha->TABLE_SIZE);
+}
+
 /**
  * Gera a posicao a ser gravada na hash usando o metodo da multiplicacao.
  * @param chave
