@@ -19,6 +19,7 @@ struct Node *createNode(int data)
 
 struct Node *search(struct Node *root, int data)
 {
+
     if (root == NULL || root->data == data)
         return root;
     if (root->data < data)

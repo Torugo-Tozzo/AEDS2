@@ -1,94 +1,232 @@
+/******************************************************************************
+                             heap.c
+   Este programa implementa um heap MAXIMO em uma implementação estática de uma
+   árvore binária. Nao usa a posicao 0 (zero) do arranjo.
+******************************************************************************/
+#include <malloc.h>
 #include <stdio.h>
-#include <stdlib.h>
+#define true 1
+#define false 0
 
-#define MAX_ELEMENTS 100
+typedef int bool;
 
-struct Heap
+typedef struct
 {
-    int size;
-    int elements[MAX_ELEMENTS];
-};
+    int *A;
+    int tamanhoAtual;
+    int tamanhoMaximo;
+} HEAP;
 
-void swap(int *a, int *b)
+void inicializarHeap(HEAP *h, int tamanhoMax)
 {
-    int temp = *a;
-    *a = *b;
-    *b = temp;
+    h->A = (int *)malloc(sizeof(int) * (tamanhoMax + 1));
+    h->tamanhoAtual = 0;
+    h->tamanhoMaximo = tamanhoMax;
 }
 
-void heapify_down(struct Heap *heap, int index)
+void destruirHeap(HEAP *h)
 {
-    int left = 2 * index + 1;
-    int right = 2 * index + 2;
-    int smallest = index;
+    int tamanho = h->tamanhoMaximo;
+    free(h->A);
+    h->tamanhoMaximo = 0;
+    h->tamanhoAtual = 0;
+}
 
-    if (left < heap->size && heap->elements[left] < heap->elements[index])
-        smallest = left;
+int pai(int i)
+{
+    return i / 2;
+}
 
-    if (right < heap->size && heap->elements[right] < heap->elements[smallest])
-        smallest = right;
+int filhoEsquerda(int i)
+{
+    return 2 * i;
+}
 
-    if (smallest != index)
+int filhoDireita(int i)
+{
+    return 2 * i + 1;
+}
+
+/* metodo auxiliar que pressupoe que o heap para qualquer j>i estah ordenado
+   porem o elemento i nao eh necessariamente maior que seus filhos           */
+void maxHeapify(HEAP *h, int i)
+{
+    int esq = filhoEsquerda(i);
+    int dir = filhoDireita(i);
+    int temp;
+    int maior = i;
+    if ((esq <= h->tamanhoAtual) && (h->A[esq] > h->A[i]))
+        maior = esq;
+    if ((dir <= h->tamanhoAtual) && (h->A[dir] > h->A[maior]))
+        maior = dir;
+    if (maior != i)
     {
-        swap(&heap->elements[index], &heap->elements[smallest]);
-        heapify_down(heap, smallest);
+        temp = h->A[i];
+        h->A[i] = h->A[maior];
+        h->A[maior] = temp;
+        maxHeapify(h, maior);
     }
 }
 
-void heapify_up(struct Heap *heap, int index)
-{
-    int parent = (index - 1) / 2;
-
-    if (index && heap->elements[index] < heap->elements[parent])
-    {
-        swap(&heap->elements[index], &heap->elements[parent]);
-        heapify_up(heap, parent);
-    }
-}
-
-void insert(struct Heap *heap, int element)
-{
-    heap->elements[heap->size] = element;
-    heap->size++;
-
-    heapify_up(heap, heap->size - 1);
-}
-
-int extract_min(struct Heap *heap)
-{
-    int min = heap->elements[0];
-
-    heap->elements[0] = heap->elements[heap->size - 1];
-    heap->size--;
-
-    heapify_down(heap, 0);
-
-    return min;
-}
-
-void print(struct Heap *heap)
+// Constroi heap a partir do arranjo usando o metodo maxHeapify
+void construirHeapMaximo(HEAP *h)
 {
     int i;
-    for (i = 0; i < heap->size; i++)
-        printf("%d ", heap->elements[i]);
+    int metadeTamanho = h->tamanhoAtual / 2;
+    for (i = metadeTamanho; i > 0; i--)
+        maxHeapify(h, i);
+}
+
+// Insere no final do arranjo do heap
+bool inserirForaDeOrdem(HEAP *h, int valor)
+{
+    if (h->tamanhoAtual < h->tamanhoMaximo)
+    {
+        (h->tamanhoAtual)++;
+        h->A[h->tamanhoAtual] = valor;
+        return true;
+    }
+    return false;
+}
+
+// Imprime o arranjo (na ordem que estiver)
+void imprimirArranjo(HEAP h)
+{
+    int tamanho = h.tamanhoAtual;
+    int i;
+    for (i = 1; i <= tamanho; i++)
+        printf("%d ", h.A[i]);
+    printf("\n");
+}
+
+// Imprime elementos em ordem decrescente e esvazia o heap
+void heapSort(HEAP *h)
+{
+    int tamanho = h->tamanhoAtual;
+    int i, temp;
+    construirHeapMaximo(h); // se o arranjo jah for um heap, nao precisa desta linha
+    for (i = tamanho; i > 1; i--)
+    {
+        temp = h->A[1];
+        h->A[1] = h->A[i];
+        h->A[i] = temp;
+        // printf("%d ",temp);
+        (h->tamanhoAtual)--;
+        maxHeapify(h, 1);
+    }
+    // printf("\n");
+    h->tamanhoAtual = tamanho;
+    ;
+}
+
+bool inserirHeap(HEAP *h, int chave)
+{
+    int i, temp;
+    if (h->tamanhoAtual == h->tamanhoMaximo)
+        return false;
+    (h->tamanhoAtual)++;
+    i = h->tamanhoAtual;
+    h->A[i] = chave;
+    while ((i > 1) && (h->A[pai(i)] < h->A[i]))
+    {
+        temp = h->A[i];
+        h->A[i] = h->A[pai(i)];
+        h->A[pai(i)] = temp;
+        i = pai(i);
+    }
+    return true;
+}
+
+int percursoPreOrdem(HEAP *h, int atual)
+{
+    if (atual <= h->tamanhoAtual)
+    {
+        printf("%i ", h->A[atual]);
+        percursoPreOrdem(h, filhoEsquerda(atual));
+        percursoPreOrdem(h, filhoDireita(atual));
+    }
+}
+
+int alturaHeap(HEAP *h)
+{
+    int altura = -1;
+    int i = 1;
+    while (i <= h->tamanhoAtual)
+    {
+        i = filhoEsquerda(i);
+        altura++;
+    }
+    return altura;
 }
 
 int main()
 {
-    struct Heap *heap = (struct Heap *)malloc(sizeof(struct Heap));
-    heap->size = 0;
+    HEAP meuHeap;
+    inicializarHeap(&meuHeap, 100);
 
-    insert(heap, 3);
-    insert(heap, 2);
-    insert(heap, 1);
+    inserirForaDeOrdem(&meuHeap, 10);
+    inserirForaDeOrdem(&meuHeap, 5);
+    inserirForaDeOrdem(&meuHeap, 3);
+    inserirForaDeOrdem(&meuHeap, 20);
+    inserirForaDeOrdem(&meuHeap, 8);
+    inserirForaDeOrdem(&meuHeap, 6);
+    inserirForaDeOrdem(&meuHeap, 15);
+    inserirForaDeOrdem(&meuHeap, 1);
+    inserirForaDeOrdem(&meuHeap, 18);
+    inserirForaDeOrdem(&meuHeap, 40);
+    inserirForaDeOrdem(&meuHeap, 17);
+    inserirForaDeOrdem(&meuHeap, 12);
 
-    printf("Heap: ");
-    print(heap);
+    imprimirArranjo(meuHeap);
 
-    printf("\nExtracted min: %d", extract_min(heap));
+    construirHeapMaximo(&meuHeap);
 
-    printf("\nHeap after extraction: ");
-    print(heap);
+    imprimirArranjo(meuHeap);
 
-    return 0;
+    percursoPreOrdem(&meuHeap, 1);
+
+    printf("\n");
+
+    heapSort(&meuHeap);
+
+    imprimirArranjo(meuHeap);
+
+    destruirHeap(&meuHeap);
+
+    printf("\nTestes parte 2\n");
+
+    inicializarHeap(&meuHeap, 50);
+
+    inserirHeap(&meuHeap, 10);
+    printf("Altura heap: %i\n", alturaHeap(&meuHeap));
+    inserirHeap(&meuHeap, 5);
+    printf("Altura heap: %i\n", alturaHeap(&meuHeap));
+    inserirHeap(&meuHeap, 3);
+    printf("Altura heap: %i\n", alturaHeap(&meuHeap));
+    inserirHeap(&meuHeap, 20);
+    printf("Altura heap: %i\n", alturaHeap(&meuHeap));
+    inserirHeap(&meuHeap, 8);
+    printf("Altura heap: %i\n", alturaHeap(&meuHeap));
+    inserirHeap(&meuHeap, 6);
+    printf("Altura heap: %i\n", alturaHeap(&meuHeap));
+    inserirHeap(&meuHeap, 15);
+    printf("Altura heap: %i\n", alturaHeap(&meuHeap));
+    inserirHeap(&meuHeap, 1);
+    printf("Altura heap: %i\n", alturaHeap(&meuHeap));
+    inserirHeap(&meuHeap, 18);
+    printf("Altura heap: %i\n", alturaHeap(&meuHeap));
+    inserirHeap(&meuHeap, 40);
+    printf("Altura heap: %i\n", alturaHeap(&meuHeap));
+    inserirHeap(&meuHeap, 17);
+    printf("Altura heap: %i\n", alturaHeap(&meuHeap));
+    inserirHeap(&meuHeap, 12);
+    imprimirArranjo(meuHeap);
+    /*o Heap ja esta corretamente montado, o comando a seguir nao alterara nada*/
+    construirHeapMaximo(&meuHeap);
+    imprimirArranjo(meuHeap);
+    percursoPreOrdem(&meuHeap, 1);
+    printf("\n");
+    heapSort(&meuHeap);
+    imprimirArranjo(meuHeap);
+    destruirHeap(&meuHeap);
 }
